@@ -348,6 +348,83 @@
     background: #e74c3c;
     color: white;
 }
+
+form input:hover + label,
+form input:not(:placeholder-shown) + label {
+    top: -0.8rem;
+    left: 1rem;
+    font-size: 0.9rem;
+    color: #2c3e50;
+    background: transparent;
+    padding: 0 0.2rem;
+    border-radius: 4px;
+}
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #333;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.form-group select:hover + label,
+.form-group select:not([value=""]) + label,
+.form-group textarea:hover + label,
+.form-group textarea:not(:placeholder-shown) + label {
+    top: -0.8rem;
+    left: 1rem;
+    font-size: 0.9rem;
+    color: #2c3e50;
+    background: transparent;
+    padding: 0 0.2rem;
+    border-radius: 4px;
+}
+
+.form-group select option {
+    background: white;
+    color: #333;
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    background: white;
+}
+
+.form-group label {
+    position: absolute;
+    left: 0.75rem;
+    top: 0.75rem;
+    padding: 0 0.25rem;
+    background: white;
+    color: #666;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.form-group input:focus + label,
+.form-group input:not(:placeholder-shown) + label {
+    transform: translateY(-1.4rem) scale(0.85);
+    background: white;
+    color: #333;
+}
+
+.modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+}
 </style>
 @endpush
 
@@ -362,17 +439,20 @@
         </div>
         <nav class="sidebar-nav">
             <a href="#users" class="nav-item active" data-target="users-section">
-                <i class="fas fa-users"></i> Users
+                <i class="fas fa-users"> Users </i> 
             </a>
             <a href="#projects" class="nav-item" data-target="projects-section">
-                <i class="fas fa-project-diagram"></i> Projects
+                <i class="fas fa-project-diagram"> Projects </i> 
             </a>
             <a href="#tasks" class="nav-item" data-target="tasks-section">
-                <i class="fas fa-tasks"></i> Tasks
+                <i class="fas fa-tasks"> Tasks </i> 
             </a>
-            <a href="{{ route('logout') }}" class="nav-item">
-                <i class="fas fa-sign-out-alt"></i> Logout
+            <a href="#" class="nav-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <i class="fas fa-sign-out-alt"> Logout </i>
             </a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+            @csrf
+            </form>
         </nav>
     </div>
 
@@ -383,7 +463,7 @@
             <div class="section-header">
                 <h2>Manage Users</h2>
                 <button class="add-btn" onclick="toggleModal('userModal')">
-                    <i class="fas fa-plus"></i> Add User
+                    <i class="fas fa-plus"> Add User </i> 
                 </button>
             </div>
             <div class="data-grid">
@@ -402,7 +482,7 @@
                             <td>{{ $user->email }}</td>
                             <td>
                                 <button class="edit-btn" onclick="editUser({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}')">
-                                    <i class="fas fa-edit"></i> Edit
+                                    <i class="fas fa-edit"> Edit</i> 
                                 </button>
                             </td>
                         </tr>
@@ -421,7 +501,7 @@
             <div class="section-header">
                 <h2>Manage Projects</h2>
                 <button class="add-btn" onclick="toggleModal('projectModal')">
-                    <i class="fas fa-plus"></i> Add Project
+                    <i class="fas fa-plus"> Add Project </i> 
                 </button>
             </div>
             <div class="data-grid">
@@ -439,10 +519,13 @@
                         <tr>
                             <td>{{ $project->name }}</td>
                             <td>{{ $project->description }}</td>
-                            <td>{{ $project->created_at ? $project->created_at->format('Y-m-d') : 'N/A' }}</td>
                             <td>
-                                <button class="edit-btn">Edit</button>
-                                <button class="delete-btn">Delete</button>
+                                <button class="edit-btn" onclick="editProject({{ $project->id }}, '{{ $project->name }}', '{{ $project->description }}')">
+                                    <i class="fas fa-edit"> Edit</i>
+                                </button>
+                                <button class="delete-btn" onclick="deleteProject({{ $project->id }})">
+                                    <i class="fas fa-trash"> Delete</i>
+                                </button>
                             </td>
                         </tr>
                         @empty
@@ -460,7 +543,7 @@
             <div class="section-header">
                 <h2>Manage Tasks</h2>
                 <button class="add-btn" onclick="toggleModal('taskModal')">
-                    <i class="fas fa-plus"></i> Add Task
+                    <i class="fas fa-plus"> Add Task </i> 
                 </button>
             </div>
             <div class="data-grid">
@@ -498,19 +581,28 @@
 <div id="userModal" class="modal">
     <div class="modal-content">
         <h3>Add New User</h3>
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form action="{{ route('admin.users.store') }}" method="POST">
             @csrf
             <div class="form-group">
+                <input type="text" id="name" name="name" placeholder=" " required value="{{ old('name') }}">
                 <label for="name">Full Name</label>
-                <input type="text" id="name" name="name" required>
             </div>
             <div class="form-group">
+                <input type="email" id="email" name="email" placeholder=" " required value="{{ old('email') }}">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required>
             </div>
             <div class="form-group">
+                <input type="password" id="password" name="password" placeholder=" " required>
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
             </div>
             <div class="form-actions">
                 <button type="submit" class="submit-btn">Create User</button>
@@ -527,12 +619,12 @@
         <form action="{{ route('admin.projects.store') }}" method="POST">
             @csrf
             <div class="form-group">
+                <input type="text" id="project_name" name="project_name" placeholder=" " required>
                 <label for="project_name">Project Name</label>
-                <input type="text" id="project_name" name="project_name" required>
             </div>
             <div class="form-group">
+                <textarea id="project_description" name="description" rows="3" placeholder=" "></textarea>
                 <label for="project_description">Description</label>
-                <textarea id="project_description" name="description" rows="3"></textarea>
             </div>
             <div class="form-actions">
                 <button type="submit" class="submit-btn">Create Project</button>
@@ -549,24 +641,30 @@
         <form action="{{ route('admin.tasks.store') }}" method="POST">
             @csrf
             <div class="form-group">
+                <input type="text" id="task_name" name="task_name" placeholder=" " required>
                 <label for="task_name">Task Name</label>
-                <input type="text" id="task_name" name="task_name" required>
             </div>
             <div class="form-group">
-                <label for="project_id">Project</label>
-                <select id="project_id" name="project_id" required>
+                <select id="project_id" name="project_id" placeholder=" " required>
                     <option value="">Select Project</option>
+                    @foreach($projects as $project)
+                    <option value="{{ $project->id }}">{{ $project->name }}</option>
+                    @endforeach
                 </select>
+                <label for="project_id">Project</label>
             </div>
             <div class="form-group">
-                <label for="assigned_to">Assign To</label>
-                <select id="assigned_to" name="assigned_to" required>
+                <select id="assigned_to" name="assigned_to" placeholder=" " required>
                     <option value="">Select User</option>
+                    @foreach($users as $user)
+                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    @endforeach
                 </select>
+                <label for="assigned_to">Assign To</label>
             </div>
             <div class="form-group">
+                <textarea id="task_description" name="description" rows="3" placeholder=" "></textarea>
                 <label for="task_description">Description</label>
-                <textarea id="task_description" name="description" rows="3"></textarea>
             </div>
             <div class="form-actions">
                 <button type="submit" class="submit-btn">Create Task</button>
@@ -580,24 +678,47 @@
 <div id="editUserModal" class="modal">
     <div class="modal-content">
         <h3>Edit User</h3>
-        <form id="editUserForm" action="" method="POST">
+        <form id="editUserForm" method="POST">
             @csrf
             @method('PUT')
             <div class="form-group">
+                <input type="text" id="edit_name" name="name" placeholder=" " required>
                 <label for="edit_name">Name</label>
-                <input type="text" id="edit_name" name="name" required>
             </div>
             <div class="form-group">
+                <input type="email" id="edit_email" name="email" placeholder=" " required>
                 <label for="edit_email">Email</label>
-                <input type="email" id="edit_email" name="email" required>
             </div>
             <div class="form-group">
-                <label for="edit_password">New Password (leave blank to keep current)</label>
-                <input type="password" id="edit_password" name="password">
+                <input type="password" id="edit_password" name="password" placeholder=" ">
+                <label for="edit_password">New Password</label>
             </div>
             <div class="form-actions">
                 <button type="submit" class="submit-btn">Update User</button>
                 <button type="button" class="cancel-btn" onclick="toggleModal('editUserModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Project Modal -->
+<div id="editProjectModal" class="modal">
+    <div class="modal-content">
+        <h3>Edit Project</h3>
+        <form id="editProjectForm" method="POST">
+            @csrf
+            @method('POST')
+            <div class="form-group">
+                <input type="text" id="edit_project_name" name="name" placeholder=" " required>
+                <label for="edit_project_name">Project Name</label>
+            </div>
+            <div class="form-group">
+                <textarea id="edit_project_description" name="description" placeholder=" " required></textarea>
+                <label for="edit_project_description">Description</label>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">Update Project</button>
+                <button type="button" class="cancel-btn" onclick="toggleModal('editProjectModal')">Cancel</button>
             </div>
         </form>
     </div>
@@ -633,12 +754,92 @@ function toggleModal(modalId) {
     modal.classList.toggle('show');
 }
 
+// Add this to the existing script section in admin-dashboard.blade.php
+
 function editUser(id, name, email) {
+    // Set the form action URL
+    document.getElementById('editUserForm').action = `/admin/users/${id}`;
+    
+    // Set the form values
     document.getElementById('edit_name').value = name;
     document.getElementById('edit_email').value = email;
     document.getElementById('edit_password').value = '';
-    document.getElementById('editUserForm').action = `/admin/users/${id}`;
+    
+    // Show the modal
     toggleModal('editUserModal');
 }
+
+function editProject(id, name, description) {
+    const form = document.getElementById('editProjectForm');
+    form.action = `/admin/projects/${id}`;
+    
+    document.getElementById('edit_project_name').value = name;
+    document.getElementById('edit_project_description').value = description;
+    
+    // Add CSRF token to form
+    if (!form.querySelector('input[name="_token"]')) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+    }
+    
+    toggleModal('editProjectModal');
+}
+
+function deleteProject(id) {
+    if (confirm('Are you sure you want to delete this project?')) {
+        fetch(`/admin/projects/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Failed to delete project');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the project');
+        });
+    }
+}
+
+// Add form submit handler for edit project
+document.getElementById('editProjectForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            toggleModal('editProjectModal');
+            location.reload();
+        } else {
+            alert(data.message || 'Failed to update project');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the project');
+    });
+});
 </script>
 @endpush

@@ -19,7 +19,7 @@ class TaskController extends Controller
                     ->with('comments')
                     ->get();
                     
-        return view('user', compact('tasks'));
+        return view('user', ['tasks'=>$tasks]);
     }
 
     public function updateStatus(Request $request, $taskId)
