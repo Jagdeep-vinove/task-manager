@@ -263,6 +263,7 @@
         color: #333;
     }
 
+
 /* Modal Styles */
 .modal-content {
     background: white;
@@ -425,6 +426,57 @@ form input:not(:placeholder-shown) + label {
     max-height: 90vh;
     overflow-y: auto;
 }
+
+/* Add these styles to your existing <style> section */
+.edit-btn, .delete-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.edit-btn {
+    background: #3498db;
+    color: white;
+}
+
+.delete-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+.edit-btn:hover, .delete-btn:hover {
+    opacity: 0.9;
+}
+
+td {
+    vertical-align: middle;
+}
+
+.fas {
+    pointer-events: none;
+}
+/* .delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+.fas {
+    margin-right: 5px;
+} */
 </style>
 @endpush
 
@@ -482,7 +534,10 @@ form input:not(:placeholder-shown) + label {
                             <td>{{ $user->email }}</td>
                             <td>
                                 <button class="edit-btn" onclick="editUser({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}')">
-                                    <i class="fas fa-edit"> Edit</i> 
+                                    <i class="fas fa-edit"> Edit</i>
+                                </button>
+                                <button class="delete-btn" onclick="deleteUser({{ $user->id }})">
+                                    <i class="fas fa-trash"> Delete</i> 
                                 </button>
                             </td>
                         </tr>
@@ -510,7 +565,6 @@ form input:not(:placeholder-shown) + label {
                         <tr>
                             <th>Name</th>
                             <th>Description</th>
-                            <th>Created At</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -520,7 +574,7 @@ form input:not(:placeholder-shown) + label {
                             <td>{{ $project->name }}</td>
                             <td>{{ $project->description }}</td>
                             <td>
-                                <button class="edit-btn" onclick="editProject({{ $project->id }}, '{{ $project->name }}', '{{ $project->description }}')">
+                                <button type="button" class="edit-btn" onclick="editProject({{ $project->id }}, '{{ $project->name }}', '{{ addslashes($project->description) }}')">
                                     <i class="fas fa-edit"> Edit</i>
                                 </button>
                                 <button class="delete-btn" onclick="deleteProject({{ $project->id }})">
@@ -530,7 +584,7 @@ form input:not(:placeholder-shown) + label {
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="text-center">No projects found</td>
+                            <td colspan="3" class="text-center">No projects found</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -554,6 +608,7 @@ form input:not(:placeholder-shown) + label {
                             <th>Project</th>
                             <th>Assigned To</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -563,10 +618,18 @@ form input:not(:placeholder-shown) + label {
                             <td>{{ $task->project ? $task->project->name : 'No Project' }}</td>
                             <td>{{ $task->user ? $task->user->name : 'Unassigned' }}</td>
                             <td>{{ $task->status }}</td>
+                            <td>
+                                <button class="edit-btn" onclick="editTask({{ $task->id }})">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="delete-btn" onclick="deleteTask({{ $task->id }})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="text-center">No tasks found</td>
+                            <td colspan="5" class="text-center">No tasks found</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -592,7 +655,7 @@ form input:not(:placeholder-shown) + label {
         @endif
         <form action="{{ route('admin.users.store') }}" method="POST">
             @csrf
-            <div class="form-group">
+            <div class="form-group">Welcome, testerWelcoWelcome, testerme, tester
                 <input type="text" id="name" name="name" placeholder=" " required value="{{ old('name') }}">
                 <label for="name">Full Name</label>
             </div>
@@ -645,19 +708,19 @@ form input:not(:placeholder-shown) + label {
                 <label for="task_name">Task Name</label>
             </div>
             <div class="form-group">
-                <select id="project_id" name="project_id" placeholder=" " required>
+                <select id="project_id" name="project_id" required>
                     <option value="">Select Project</option>
                     @foreach($projects as $project)
-                    <option value="{{ $project->id }}">{{ $project->name }}</option>
+                        <option value="{{ $project->id }}">{{ $project->name }}</option>
                     @endforeach
                 </select>
                 <label for="project_id">Project</label>
             </div>
             <div class="form-group">
-                <select id="assigned_to" name="assigned_to" placeholder=" " required>
+                <select id="assigned_to" name="assigned_to" required>
                     <option value="">Select User</option>
                     @foreach($users as $user)
-                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
                     @endforeach
                 </select>
                 <label for="assigned_to">Assign To</label>
@@ -674,7 +737,7 @@ form input:not(:placeholder-shown) + label {
     </div>
 </div>
 
-<!-- Edit User Modal -->
+<!-- Edit User Modal -->Welcome, tester
 <div id="editUserModal" class="modal">
     <div class="modal-content">
         <h3>Edit User</h3>
@@ -719,6 +782,55 @@ form input:not(:placeholder-shown) + label {
             <div class="form-actions">
                 <button type="submit" class="submit-btn">Update Project</button>
                 <button type="button" class="cancel-btn" onclick="toggleModal('editProjectModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Task Modal -->
+<div id="editTaskModal" class="modal">
+    <div class="modal-content">
+        <h3>Edit Task</h3>
+        <form id="editTaskForm" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="form-group">
+                <input type="text" id="edit_task_name" name="title" placeholder=" " required>
+                <label for="edit_task_name">Task Name</label>
+            </div>
+            <div class="form-group">
+                <select id="edit_project_id" name="project_id" required>
+                    <option value="">Select Project</option>
+                    @foreach($projects as $project)
+                        <option value="{{ $project->id }}">{{ $project->name }}</option>
+                    @endforeach
+                </select>
+                <label for="edit_project_id">Project</label>
+            </div>
+            <div class="form-group">
+                <select id="edit_assigned_to" name="assigned_to" required>
+                    <option value="">Select User</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    @endforeach
+                </select>
+                <label for="edit_assigned_to">Assign To</label>
+            </div>
+            <div class="form-group">
+                <select id="edit_task_status" name="status" required>
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                </select>
+                <label for="edit_task_status">Status</label>
+            </div>
+            <div class="form-group">
+                <textarea id="edit_task_description" name="description" rows="3" placeholder=" "></textarea>
+                <label for="edit_task_description">Description</label>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">Update Task</button>
+                <button type="button" class="cancel-btn" onclick="toggleModal('editTaskModal')">Cancel</button>
             </div>
         </form>
     </div>
@@ -770,38 +882,97 @@ function editUser(id, name, email) {
 }
 
 function editProject(id, name, description) {
-    const form = document.getElementById('editProjectForm');
-    form.action = `/admin/projects/${id}`;
+    // Get the form and clear previous content
+    document.getElementById('editProjectForm').action = `/admin/projects/${id}`;
     
+    // Set values
     document.getElementById('edit_project_name').value = name;
     document.getElementById('edit_project_description').value = description;
     
-    // Add CSRF token to form
-    if (!form.querySelector('input[name="_token"]')) {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = '_token';
-        csrfInput.value = csrfToken;
-        form.appendChild(csrfInput);
-    }
-    
+    // // Add CSRF token if not present
+    // if (!form.querySelector('input[name="_token"]')) {
+    //     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    //     const csrfInput = document.createElement('input');
+    //     csrfInput.type = 'hidden';
+    //     csrfInput.name = '_token';
+    //     csrfInput.value = csrfToken;
+    //     form.prepend(csrfInput);
+    // }
+    // Show modal
     toggleModal('editProjectModal');
 }
 
-function deleteProject(id) {
-    if (confirm('Are you sure you want to delete this project?')) {
-        fetch(`/admin/projects/${id}`, {
+function editTask(id) {
+    // Fetch task data first
+    fetch(`/admin/tasks/${id}/edit`, {
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(task => {
+        // Set the form action
+        document.getElementById('editTaskForm').action = `/admin/tasks/${id}`;
+        
+        // Set form values
+        document.getElementById('edit_task_name').value = task.title;
+        document.getElementById('edit_project_id').value = task.project_id;
+        document.getElementById('edit_assigned_to').value = task.assigned_to;
+        document.getElementById('edit_task_status').value = task.status;
+        document.getElementById('edit_task_description').value = task.description;
+        
+        // Show the modal
+        toggleModal('editTaskModal');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to load task details');
+    });
+}
+
+function deleteUser(id) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        
+        fetch(`/admin/users/${id}`, {
             method: 'DELETE',
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json',
                 'Accept': 'application/json'
             }
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                window.location.reload();
+            } else {
+                alert(data.message || 'Failed to delete user');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the user');
+        });
+    }
+}
+
+function deleteProject(id) {
+    if (confirm('Are you sure you want to delete this project?')) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        
+        fetch(`/admin/projects/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
             } else {
                 alert(data.message || 'Failed to delete project');
             }
@@ -813,33 +984,31 @@ function deleteProject(id) {
     }
 }
 
-// Add form submit handler for edit project
-document.getElementById('editProjectForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    
-    fetch(this.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            toggleModal('editProjectModal');
-            location.reload();
-        } else {
-            alert(data.message || 'Failed to update project');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while updating the project');
-    });
-});
+function deleteTask(id) {
+    if (confirm('Are you sure you want to delete this task?')) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        
+        fetch(`/admin/tasks/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.message || 'Failed to delete task');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the task');
+        });
+    }
+}
 </script>
 @endpush

@@ -6,8 +6,8 @@
     <style>
     .dashboard-container {
         min-height: 100vh;
-        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
         padding: 2rem;
+        background: rgb(18, 62, 255);
     }
     
     .dashboard-nav {
