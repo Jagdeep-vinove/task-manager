@@ -21,14 +21,19 @@ Route::post('/tasks/{task}/comments', [TaskController::class, 'addComment'])->na
 
 Route::get('/admin', [AdminController::class, 'showDashboard'])->name('admin.dashboard');
 Route::post('/admin/users', [AdminController::class, 'storeUser'])->name('admin.users.store');
-Route::put('/admin/users/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');
 Route::post('/admin/projects', [AdminController::class, 'storeProject'])->name('admin.projects.store');
 Route::post('/admin/tasks', [AdminController::class, 'storeTask'])->name('admin.tasks.store');
 
-Route::post('/admin/projects/{id}', [AdminController::class, 'updateProject'])->name('admin.projects.update');
-Route::get('/admin/tasks/{id}/edit', [AdminController::class, 'editTask'])->name('admin.tasks.edit');
-Route::put('/admin/tasks/{id}', [AdminController::class, 'updateTask'])->name('admin.tasks.update');
-
-Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');
-Route::delete('/admin/projects/{id}', [AdminController::class, 'deleteProject'])->name('admin.projects.delete');
-Route::delete('/admin/tasks/{id}', [AdminController::class, 'deleteTask'])->name('admin.tasks.delete');
+Route::group(['prefix' => 'admin'], function () {
+    // User routes
+    Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');
+    Route::delete('/users/{id}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');
+    
+    // Project routes
+    Route::put('/projects/{id}', [AdminController::class, 'updateProject'])->name('admin.projects.update');
+    Route::delete('/projects/{id}', [AdminController::class, 'deleteProject'])->name('admin.projects.delete');
+    
+    // Task routes
+    Route::put('/tasks/{id}', [AdminController::class, 'updateTask'])->name('admin.tasks.update');
+    Route::delete('/tasks/{id}', [AdminController::class, 'deleteTask'])->name('admin.tasks.delete');
+});
